@@ -313,34 +313,32 @@ func main() {
 	fmt.Printf("=== Лабораторная работа №1: Интерполяция ===\n")
 
 	// Параметры для интерполяции
-	a, b := 1.0, 5.0
+	a, b := -3.0, 3.0
 
 	// Тестирование с разным количеством узлов
-	nValues := []int{10}
+	nValues := []int{5}
 
 	for _, n := range nValues {
 		fmt.Printf("\n=== Тестирование с N = %d узлами ===\n\n", n)
 
 		// Создаем равномерную сетку
-		uniformData := createGrid(a, b, n, testFunction)
+		uniformData := createGrid(a, b, n, moduleFunction)
 		printTable(uniformData, "равномерные узлы")
 
 		// Создаем сетку Чебышева
-		chebyshevData := createChebyshevGrid(a, b, n, testFunction)
+		chebyshevData := createChebyshevGrid(a, b, n, moduleFunction)
 		printTable(chebyshevData, "узлы Чебышева")
 
 		// Сравниваем методы интерполяции
-		compareInterpolations(uniformData, chebyshevData, testFunction)
+		compareInterpolations(uniformData, chebyshevData, moduleFunction)
 
 		// Генерируем HTML файл с графиками
 		filename := fmt.Sprintf("interpolation_n%d.html", n)
-		err := generateHTML(uniformData, chebyshevData, testFunction, filename)
+		err := generateHTML(uniformData, chebyshevData, moduleFunction, filename)
 		if err != nil {
 			fmt.Printf("Ошибка при создании HTML файла: %v\n", err)
 		} else {
 			fmt.Printf("✓ График сохранен в файл: %s\n\n", filename)
 		}
 	}
-
-	fmt.Println("Все графики созданы! Откройте HTML файлы в браузере для просмотра.")
 }
