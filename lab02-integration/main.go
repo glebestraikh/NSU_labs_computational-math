@@ -6,12 +6,12 @@ import (
 )
 
 const (
-	RESET = "\033[0m"
-	GREEN = "\033[32m"
+	reset = "\033[0m"
+	green = "\033[32m"
 )
 
 const (
-	SCALE = 0.01
+	scale = 0.01
 )
 
 type Segment struct {
@@ -68,7 +68,7 @@ func trapezoidalRule(ex Example, intervals int, calculateErrors bool) Answer {
 	if calculateErrors {
 		// Аналитическая погрешность
 		maxSecondDer := math.Abs(ex.secondDerivative(a))
-		for xi := a + SCALE; xi <= b; xi += SCALE {
+		for xi := a + scale; xi <= b; xi += scale {
 			secondDer := math.Abs(ex.secondDerivative(xi))
 			if secondDer > maxSecondDer {
 				maxSecondDer = secondDer
@@ -104,7 +104,7 @@ func simpsonRule(ex Example, intervals int, calculateErrors bool) Answer {
 	if calculateErrors {
 		// Аналитическая погрешность
 		maxFourthDer := math.Abs(ex.fourthDerivative(a))
-		for xi := a + SCALE; xi <= b; xi += SCALE {
+		for xi := a + scale; xi <= b; xi += scale {
 			fourthDer := math.Abs(ex.fourthDerivative(xi))
 			if fourthDer > maxFourthDer {
 				maxFourthDer = fourthDer
@@ -152,10 +152,10 @@ func main() {
 		fmt.Printf("Трапеция | Аналитическая погрешность: %.8f\n", ansTrapezoidal.errorAnalytic)
 		fmt.Printf("Трапеция | Погрешность по правилу Рунге: %.8f\n\n", ansTrapezoidal.errorRunge)
 
-		fmt.Printf(GREEN+"Симпсон | Вычисленное значение: %.8f"+RESET+"\n", ansSimpson.value)
-		fmt.Printf(GREEN+"Симпсон | Разность квадратурной формулы и wolframalpha: %.8f"+RESET+"\n", math.Abs(ansSimpson.value-ex.value))
-		fmt.Printf(GREEN+"Симпсон | Аналитическая погрешность: %.8f"+RESET+"\n", ansSimpson.errorAnalytic)
-		fmt.Printf(GREEN+"Симпсон | Погрешность по правилу Рунге: %.8f"+RESET+"\n", ansSimpson.errorRunge)
+		fmt.Printf(green+"Симпсон | Вычисленное значение: %.8f"+reset+"\n", ansSimpson.value)
+		fmt.Printf(green+"Симпсон | Разность квадратурной формулы и wolframalpha: %.8f"+reset+"\n", math.Abs(ansSimpson.value-ex.value))
+		fmt.Printf(green+"Симпсон | Аналитическая погрешность: %.8f"+reset+"\n", ansSimpson.errorAnalytic)
+		fmt.Printf(green+"Симпсон | Погрешность по правилу Рунге: %.8f"+reset+"\n", ansSimpson.errorRunge)
 	}
 
 	fmt.Println("==============================================================================")
