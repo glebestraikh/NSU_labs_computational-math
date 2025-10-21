@@ -14,20 +14,20 @@ const (
 	scale = 0.01
 )
 
-type Segment struct {
+type segment struct {
 	a, b float64
 }
 
-type Example struct {
+type data struct {
 	name             string
 	f                func(float64) float64
 	value            float64
 	secondDerivative func(float64) float64
 	fourthDerivative func(float64) float64
-	segment          Segment
+	segment          segment
 }
 
-type Answer struct {
+type answer struct {
 	value         float64
 	errorAnalytic float64
 	errorRunge    float64
@@ -51,7 +51,7 @@ func fourthDerivative(x float64) float64 {
 }
 
 // Составная квадратурная формула трапеции
-func trapezoidalRule(ex Example, intervals int, calculateErrors bool) Answer {
+func trapezoidalRule(ex data, intervals int, calculateErrors bool) answer {
 	a, b := ex.segment.a, ex.segment.b
 	f := ex.f
 	step := (b - a) / float64(intervals)
@@ -63,7 +63,7 @@ func trapezoidalRule(ex Example, intervals int, calculateErrors bool) Answer {
 		sum += (f(x0) + f(x1)) * step / 2.0
 	}
 
-	ans := Answer{value: sum}
+	ans := answer{value: sum}
 
 	if calculateErrors {
 		// Аналитическая погрешность
@@ -85,7 +85,7 @@ func trapezoidalRule(ex Example, intervals int, calculateErrors bool) Answer {
 }
 
 // Составная квадратурная формула Симпсона
-func simpsonRule(ex Example, intervals int, calculateErrors bool) Answer {
+func simpsonRule(ex data, intervals int, calculateErrors bool) answer {
 	a, b := ex.segment.a, ex.segment.b
 	f := ex.f
 	step := (b - a) / float64(intervals)
@@ -99,7 +99,7 @@ func simpsonRule(ex Example, intervals int, calculateErrors bool) Answer {
 		x0 = x1
 	}
 
-	ans := Answer{value: sum}
+	ans := answer{value: sum}
 
 	if calculateErrors {
 		// Аналитическая погрешность
@@ -121,14 +121,14 @@ func simpsonRule(ex Example, intervals int, calculateErrors bool) Answer {
 }
 
 func main() {
-	examples := []Example{
+	examples := []data{
 		{
 			name:             "log10(x + 2) / x на [1.2, 2]",
 			f:                f,
 			value:            0.281613,
 			secondDerivative: secondDerivative,
 			fourthDerivative: fourthDerivative,
-			segment:          Segment{1.2, 2},
+			segment:          segment{1.2, 2},
 		},
 	}
 
