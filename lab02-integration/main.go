@@ -156,12 +156,10 @@ func main() {
 		fmt.Println("------------------------------------------------------------------------------")
 
 		fmt.Printf("Трапеция | Вычисленное значение: %.12f\n", ansTrapezoidal.value)
-		fmt.Printf("Трапеция | Разность квадратурной формулы и wolframalpha: %.12f\n", math.Abs(ansTrapezoidal.value-ex.value))
 		fmt.Printf("Трапеция | Аналитическая погрешность: %.12f\n", ansTrapezoidal.errorAnalytic)
 		fmt.Printf("Трапеция | Погрешность по правилу Рунге: %.12f\n\n", ansTrapezoidal.errorRunge)
 
 		fmt.Printf(green+"Симпсон | Вычисленное значение: %.12f"+reset+"\n", ansSimpson.value)
-		fmt.Printf(green+"Симпсон | Разность квадратурной формулы и wolframalpha: %.12f"+reset+"\n", math.Abs(ansSimpson.value-ex.value))
 		fmt.Printf(green+"Симпсон | Аналитическая погрешность: %.12f"+reset+"\n", ansSimpson.errorAnalytic)
 		fmt.Printf(green+"Симпсон | Погрешность по правилу Рунге: %.12f"+reset+"\n", ansSimpson.errorRunge)
 	}
