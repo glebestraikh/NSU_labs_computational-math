@@ -77,8 +77,12 @@ func trapezoidalRule(ex data, intervals int, calculateErrors bool) answer {
 		ans.errorAnalytic = maxSecondDer * (b - a) * step * step / 24
 
 		// Погрешность Рунге
-		ansRunge := trapezoidalRule(ex, intervals*2, false)
-		ans.errorRunge = (4 * (math.Abs(ansRunge.value - ans.value))) / 3
+		firstAnsRunge := trapezoidalRule(ex, intervals/2, false)  // I(2h)
+		secondAnsRunge := trapezoidalRule(ex, intervals*2, false) // I(h/2)
+
+		p := math.Log2(math.Abs((firstAnsRunge.value - ans.value) / (secondAnsRunge.value - ans.value)))
+
+		ans.errorRunge = (math.Pow(2, p) * math.Abs(secondAnsRunge.value-ans.value)) / (math.Pow(2, p) - 1)
 	}
 
 	return ans
@@ -113,8 +117,12 @@ func simpsonRule(ex data, intervals int, calculateErrors bool) answer {
 		ans.errorAnalytic = maxFourthDer * (b - a) * math.Pow(step, 4) / 2880
 
 		// Погрешность Рунге
-		ans2 := simpsonRule(ex, intervals*2, false)
-		ans.errorRunge = (16 * (math.Abs(ans2.value - ans.value))) / 15
+		firstAnsRunge := simpsonRule(ex, intervals/2, false)  // I(2h)
+		secondAnsRunge := simpsonRule(ex, intervals*2, false) // I(h/2)
+
+		p := math.Log2(math.Abs((firstAnsRunge.value - ans.value) / (secondAnsRunge.value - ans.value)))
+
+		ans.errorRunge = (math.Pow(2, p) * math.Abs(secondAnsRunge.value-ans.value)) / (math.Pow(2, p) - 1)
 	}
 
 	return ans
@@ -125,7 +133,7 @@ func main() {
 		{
 			name:             "log10(x + 2) / x на [1.2, 2]",
 			f:                f,
-			value:            0.281613,
+			value:            0.281613, // integral log(10, x + 2)/x dx = (log(2) log(x) - Li_2(-x/2))/log(10) + constant (полилогарифм второго порядка)
 			secondDerivative: secondDerivative,
 			fourthDerivative: fourthDerivative,
 			segment:          segment{1.2, 2},
@@ -147,15 +155,15 @@ func main() {
 		fmt.Printf("Итерация %d | Интервалов: %d\n", i+1, intervals[i])
 		fmt.Println("------------------------------------------------------------------------------")
 
-		fmt.Printf("Трапеция | Вычисленное значение: %.8f\n", ansTrapezoidal.value)
-		fmt.Printf("Трапеция | Разность квадратурной формулы и wolframalpha: %.8f\n", math.Abs(ansTrapezoidal.value-ex.value))
-		fmt.Printf("Трапеция | Аналитическая погрешность: %.8f\n", ansTrapezoidal.errorAnalytic)
-		fmt.Printf("Трапеция | Погрешность по правилу Рунге: %.8f\n\n", ansTrapezoidal.errorRunge)
+		fmt.Printf("Трапеция | Вычисленное значение: %.12f\n", ansTrapezoidal.value)
+		fmt.Printf("Трапеция | Разность квадратурной формулы и wolframalpha: %.12f\n", math.Abs(ansTrapezoidal.value-ex.value))
+		fmt.Printf("Трапеция | Аналитическая погрешность: %.12f\n", ansTrapezoidal.errorAnalytic)
+		fmt.Printf("Трапеция | Погрешность по правилу Рунге: %.12f\n\n", ansTrapezoidal.errorRunge)
 
-		fmt.Printf(green+"Симпсон | Вычисленное значение: %.8f"+reset+"\n", ansSimpson.value)
-		fmt.Printf(green+"Симпсон | Разность квадратурной формулы и wolframalpha: %.8f"+reset+"\n", math.Abs(ansSimpson.value-ex.value))
-		fmt.Printf(green+"Симпсон | Аналитическая погрешность: %.8f"+reset+"\n", ansSimpson.errorAnalytic)
-		fmt.Printf(green+"Симпсон | Погрешность по правилу Рунге: %.8f"+reset+"\n", ansSimpson.errorRunge)
+		fmt.Printf(green+"Симпсон | Вычисленное значение: %.12f"+reset+"\n", ansSimpson.value)
+		fmt.Printf(green+"Симпсон | Разность квадратурной формулы и wolframalpha: %.12f"+reset+"\n", math.Abs(ansSimpson.value-ex.value))
+		fmt.Printf(green+"Симпсон | Аналитическая погрешность: %.12f"+reset+"\n", ansSimpson.errorAnalytic)
+		fmt.Printf(green+"Симпсон | Погрешность по правилу Рунге: %.12f"+reset+"\n", ansSimpson.errorRunge)
 	}
 
 	fmt.Println("==============================================================================")
