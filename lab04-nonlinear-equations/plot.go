@@ -78,7 +78,10 @@ func generateHTML(results []result) {
 </body>
 </html>
 `
-	os.WriteFile("results.html", []byte(html), 0644)
+	err := os.WriteFile("results.html", []byte(html), 0644)
+	if err != nil {
+		return
+	}
 	fmt.Println("\nРезультаты сохранены в файл results.html")
 }
 
