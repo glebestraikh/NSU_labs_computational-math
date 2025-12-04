@@ -119,3 +119,20 @@ func ConditionNumber(A [][]float64, norm func([][]float64) float64) float64 {
 	invA := invertMatrix(A)
 	return norm(A) * norm(invA)
 }
+
+// IsDiagonallyDominant проверяет, является ли матрица диагонально доминантной
+func IsDiagonallyDominant(A [][]float64) bool {
+	n := len(A)
+	for i := 0; i < n; i++ {
+		sum := 0.0
+		for j := 0; j < n; j++ {
+			if i != j {
+				sum += math.Abs(A[i][j])
+			}
+		}
+		if math.Abs(A[i][i]) <= sum {
+			return false
+		}
+	}
+	return true
+}

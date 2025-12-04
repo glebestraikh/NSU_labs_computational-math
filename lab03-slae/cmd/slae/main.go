@@ -34,7 +34,7 @@ func main() {
 		{
 			name: "матрица гилберта",
 			A: [][]float64{
-				{1.0, 0.5, 0.3333},
+				{1.0, float64(1) / 2, 0.3333},
 				{0.5, 0.3333, 0.25},
 				{0.3333, 0.25, 0.2},
 			},
@@ -50,6 +50,15 @@ func main() {
 				{0, 0, -1, 2, 6},
 			},
 			b: []float64{8, 11, 11, 9, 7},
+		},
+		{
+			name: "матрица гилберта",
+			A: [][]float64{
+				{0.0, 1.0, 2.0},
+				{1.0, 0.0, 1.0},
+				{2.0, 1.0, 0.0},
+			},
+			b: []float64{1, 1, 1},
 		},
 	}
 
@@ -84,19 +93,38 @@ func main() {
 		fmt.Println("\n2. ИТЕРАЦИОННЫЕ МЕТОДЫ")
 		fmt.Println("-----------------------------------")
 
+		isDiagDom := matrix.IsDiagonallyDominant(example.A)
+		if isDiagDom {
+			fmt.Println("\n✓ Матрица диагонально преобладающая - итерационные методы должны сойтись")
+		} else {
+			fmt.Println("\n✗ Матрица НЕ диагонально преобладающая - итерационные методы могут не сойтись")
+		}
+
 		// Метод Якоби
 		fmt.Println("\n2.1. Метод Якоби:")
 		xJacobi, iterJacobi := iterative.JacobiMethod(matrix.CopyMatrix(example.A), vector.CopyVector(example.b), tol, maxIter)
-		vector.PrintVector("Решение (Якоби)", xJacobi)
-		fmt.Printf("Итераций: %d\n", iterJacobi)
-		fmt.Printf("Невязка: %.2e\n", util.CheckSolution(example.A, xJacobi, example.b))
+		if iterJacobi >= maxIter {
+			fmt.Println("  ВНИМАНИЕ: Метод не сошелся за максимальное число итераций")
+			fmt.Printf("  Итераций: %d (достигнут предел)\n", iterJacobi)
+		} else {
+			vector.PrintVector("Решение (Якоби)", xJacobi)
+			fmt.Printf("Итераций: %d\n", iterJacobi)
+			residual := util.CheckSolution(example.A, xJacobi, example.b)
+			fmt.Printf("Невязка: %.2e\n", residual)
+		}
 
 		// Метод Зейделя
 		fmt.Println("\n2.2. Метод Зейделя:")
 		xSeidel, iterSeidel := iterative.SeidelMethod(matrix.CopyMatrix(example.A), vector.CopyVector(example.b), tol, maxIter)
-		vector.PrintVector("Решение (Зейделя)", xSeidel)
-		fmt.Printf("Итераций: %d\n", iterSeidel)
-		fmt.Printf("Невязка: %.2e\n", util.CheckSolution(example.A, xSeidel, example.b))
+		if iterSeidel >= maxIter {
+			fmt.Println("  ВНИМАНИЕ: Метод не сошелся за максимальное число итераций")
+			fmt.Printf("  Итераций: %d (достигнут предел)\n", iterSeidel)
+		} else {
+			vector.PrintVector("Решение (Зейделя)", xSeidel)
+			fmt.Printf("Итераций: %d\n", iterSeidel)
+			residual := util.CheckSolution(example.A, xSeidel, example.b)
+			fmt.Printf("Невязка: %.2e\n", residual)
+		}
 
 		// Нормы и числа обусловленности (только для первого примера)
 		if i == 0 {
