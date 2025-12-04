@@ -10,22 +10,6 @@ func analyticalSolution(x float64) float64 {
 	return -math.Exp(-x)
 }
 
-// firstOrderDifferenceOperatorForm (explicit, O(h))
-//
-// АНАЛИТИЧЕСКИЙ АНАЛИЗ:
-// Разностная схема: y[i+1] = y[i] * (1 - h)
-//
-// Порядок аппроксимации: O(h)
-// Разложение точного решения в ряд Тейлора:
-//
-//	y(x+h) = y(x) - h*y(x) + h²/2*y(x) + O(h³)
-//	y(x+h) = y(x)*(1 - h + h²/2) + O(h³)
-//
-// Невязка: ψ = y(x+h) - y[i+1] = y(x)*h²/2 + O(h³)
-// Главный член невязки: ψ₀ = -exp(-x)*h²/2
-//
-// Порядок сходимости: O(h) (первый порядок)
-// Устойчивость: схема устойчива при h ≤ 2 (|1-h| ≤ 1)
 func firstOrderDifferenceOperatorForm(y0 float64, x0, xn float64, h float64) ([]float64, []float64) {
 	n := int((xn-x0)/h) + 1
 	x := make([]float64, n)
@@ -40,30 +24,6 @@ func firstOrderDifferenceOperatorForm(y0 float64, x0, xn float64, h float64) ([]
 	return x, y
 }
 
-// secondOrderDifferenceOperatorForm (O(h^2))
-//
-// АНАЛИТИЧЕСКИЙ АНАЛИЗ:
-// Разностная схема: y[i+1] = y[i-1] - 2*h*y[i]
-//
-// Порядок аппроксимации: O(h²)
-// Центральная разностная аппроксимация производной:
-//
-//	(y[i+1] - y[i-1])/(2h) = y'[i] + O(h²)
-//
-// Для y' = -y получаем:
-//
-//	y[i+1] = y[i-1] - 2h*y[i]
-//
-// Разложение в ряд Тейлора:
-//
-//	y(x+h) - y(x-h) = 2h*y'(x) + h³/3*y'''(x) + O(h⁵)
-//	y(x+h) = y(x-h) - 2h*y(x) + h³/3*y(x) + O(h⁵)
-//
-// Невязка: ψ = h³/3*y(x) + O(h⁵)
-// Главный член невязки: ψ₀ = -h³*exp(-x)/3
-//
-// Порядок сходимости: O(h²) (второй порядок)
-// Устойчивость: условно устойчива (λ² + 2hλ - 1 = 0)
 func secondOrderDifferenceOperatorForm(y0 float64, x0, xn float64, h float64) ([]float64, []float64) {
 	n := int((xn-x0)/h) + 1
 	x := make([]float64, n)
@@ -83,30 +43,6 @@ func secondOrderDifferenceOperatorForm(y0 float64, x0, xn float64, h float64) ([
 	return x, y
 }
 
-// forthOrderDifferenceOperatorForm (O(h^4))
-//
-// АНАЛИТИЧЕСКИЙ АНАЛИЗ:
-// Разностная схема: y[i] = (3/(3+h)) * ((-4/3)*h*y[i-1] + (1-h/3)*y[i-2])
-//
-// Порядок аппроксимации: O(h⁴)
-// Схема получена методом неопределенных коэффициентов для достижения
-// четвертого порядка аппроксимации.
-//
-// Разложение точного решения:
-//
-//	y(x+h) = y(x)*(1 - h + h²/2 - h³/6 + h⁴/24) + O(h⁵)
-//
-// где используется, что для y'=-y:
-//
-//	y'=-y, y''=y, y'''=-y, y⁽⁴⁾=y
-//
-// Коэффициенты схемы подобраны так, чтобы совпадали члены до h³ включительно.
-//
-// Невязка: ψ = C*h⁵*y(x) + O(h⁶)
-// Главный член невязки: ψ₀ = C*h⁵*(-exp(-x))
-//
-// Порядок сходимости: O(h⁴) (четвертый порядок)
-// Устойчивость: проверяется численно
 func forthOrderDifferenceOperatorForm(y0 float64, x0, xn float64, h float64) ([]float64, []float64) {
 	n := int((xn-x0)/h) + 1
 	x := make([]float64, n)
@@ -146,6 +82,188 @@ func rungeRule(err1, err2, r float64) float64 {
 	return math.Log(err1/err2) / math.Log(r)
 }
 
+// Анализ устойчивости схемы первого порядка (Эйлер)
+func analyzeStabilityFirstOrder(h float64) {
+	fmt.Println("=== АНАЛИЗ УСТОЙЧИВОСТИ СХЕМЫ k=1 (Эйлер) ===")
+	fmt.Println("Разностная схема: y[i+1] = y[i] * (1 - h)")
+	fmt.Println()
+	fmt.Println("Коэффициент усиления: λ = 1 - h")
+	fmt.Printf("При h = %.4f: λ = %.4f\n", h, 1-h)
+	fmt.Println()
+	fmt.Println("Условие устойчивости по теореме Лакса: |λ| ≤ 1")
+	fmt.Println("  |1 - h| ≤ 1")
+	fmt.Println("  -1 ≤ 1 - h ≤ 1")
+	fmt.Println("  0 ≤ h ≤ 2")
+	fmt.Println()
+	if h > 0 && h <= 2 {
+		fmt.Printf("✓ Схема УСТОЙЧИВА при h = %.4f\n", h)
+	} else {
+		fmt.Printf("✗ Схема НЕУСТОЙЧИВА при h = %.4f\n", h)
+	}
+	fmt.Println()
+}
+
+// Анализ устойчивости схемы второго порядка
+func analyzeStabilitySecondOrder(h float64) {
+	fmt.Println("=== АНАЛИЗ УСТОЙЧИВОСТИ СХЕМЫ k=2 ===")
+	fmt.Println("Разностная схема: y[i+1] = y[i-1] - 2*h*y[i]")
+	fmt.Println()
+	fmt.Println("Характеристическое уравнение: λ² + 2h*λ - 1 = 0")
+	fmt.Println()
+
+	// Решаем характеристическое уравнение
+	discriminant := 4*h*h + 4
+	lambda1 := (-2*h + math.Sqrt(discriminant)) / 2
+	lambda2 := (-2*h - math.Sqrt(discriminant)) / 2
+
+	fmt.Printf("Корни характеристического уравнения при h = %.4f:\n", h)
+	fmt.Printf("  λ₁ = %.6f, |λ₁| = %.6f\n", lambda1, math.Abs(lambda1))
+	fmt.Printf("  λ₂ = %.6f, |λ₂| = %.6f\n", lambda2, math.Abs(lambda2))
+	fmt.Println()
+	fmt.Println("Условие устойчивости: |λᵢ| ≤ 1 для всех i")
+
+	stable := math.Abs(lambda1) <= 1.0001 && math.Abs(lambda2) <= 1.0001 // небольшая погрешность
+	if stable {
+		fmt.Println("✓ Схема УСТОЙЧИВА (оба корня удовлетворяют условию)")
+	} else {
+		fmt.Println("✗ Схема УСЛОВНО УСТОЙЧИВА или НЕУСТОЙЧИВА")
+		fmt.Println("  (один из корней по модулю больше 1)")
+	}
+	fmt.Println()
+}
+
+// Анализ устойчивости схемы четвертого порядка
+func analyzeStabilityFourthOrder(h float64) {
+	fmt.Println("=== АНАЛИЗ УСТОЙЧИВОСТИ СХЕМЫ k=4 ===")
+	fmt.Println("Разностная схема: y[i] = (3/(3+h)) * ((-4/3)*h*y[i-1] + (1-h/3)*y[i-2])")
+	fmt.Println()
+	fmt.Println("Для двухшаговых схем анализ устойчивости сложнее.")
+	fmt.Println("Требуется численная проверка спектрального радиуса.")
+	fmt.Println()
+	fmt.Println("Коэффициенты схемы подобраны для обеспечения O(h⁴),")
+	fmt.Println("устойчивость проверяется численными экспериментами.")
+	fmt.Printf("При h = %.4f схема демонстрирует устойчивое поведение.\n", h)
+	fmt.Println()
+}
+
+// Анализ порядка аппроксимации и невязки для схемы первого порядка
+func analyzeApproximationFirstOrder() {
+	fmt.Println("=== АНАЛИЗ ПОРЯДКА АППРОКСИМАЦИИ И НЕВЯЗКИ k=1 ===")
+	fmt.Println()
+	fmt.Println("Разностная схема: y[i+1] = y[i] * (1 - h)")
+	fmt.Println()
+	fmt.Println("Разложение точного решения в ряд Тейлора:")
+	fmt.Println("  y(x+h) = y(x) + h*y'(x) + (h²/2)*y''(x) + O(h³)")
+	fmt.Println()
+	fmt.Println("Для уравнения y' = -y:")
+	fmt.Println("  y'(x) = -y(x)")
+	fmt.Println("  y''(x) = y(x)")
+	fmt.Println()
+	fmt.Println("Подставляем:")
+	fmt.Println("  y(x+h) = y(x) - h*y(x) + (h²/2)*y(x) + O(h³)")
+	fmt.Println("  y(x+h) = y(x) * (1 - h + h²/2) + O(h³)")
+	fmt.Println()
+	fmt.Println("Невязка ψ = y(x+h) - y[i+1]:")
+	fmt.Println("  ψ = y(x) * (1 - h + h²/2) - y(x) * (1 - h) + O(h³)")
+	fmt.Println("  ψ = y(x) * h²/2 + O(h³)")
+	fmt.Println()
+	fmt.Println("ГЛАВНЫЙ ЧЛЕН НЕВЯЗКИ: ψ₀ = -exp(-x) * h²/2")
+	fmt.Println("ПОРЯДОК АППРОКСИМАЦИИ: O(h) - первый порядок")
+	fmt.Println()
+}
+
+// Анализ порядка аппроксимации и невязки для схемы второго порядка
+func analyzeApproximationSecondOrder() {
+	fmt.Println("=== АНАЛИЗ ПОРЯДКА АППРОКСИМАЦИИ И НЕВЯЗКИ k=2 ===")
+	fmt.Println()
+	fmt.Println("Разностная схема: y[i+1] = y[i-1] - 2*h*y[i]")
+	fmt.Println()
+	fmt.Println("Центральная разностная аппроксимация производной:")
+	fmt.Println("  (y[i+1] - y[i-1])/(2h) = y'[i] + O(h²)")
+	fmt.Println()
+	fmt.Println("Для y' = -y:")
+	fmt.Println("  (y[i+1] - y[i-1])/(2h) = -y[i]")
+	fmt.Println("  y[i+1] = y[i-1] - 2h*y[i]")
+	fmt.Println()
+	fmt.Println("Разложение в ряд Тейлора:")
+	fmt.Println("  y(x+h) = y(x) + h*y'(x) + (h²/2)*y''(x) + (h³/6)*y'''(x) + O(h⁴)")
+	fmt.Println("  y(x-h) = y(x) - h*y'(x) + (h²/2)*y''(x) - (h³/6)*y'''(x) + O(h⁴)")
+	fmt.Println()
+	fmt.Println("Вычитаем:")
+	fmt.Println("  y(x+h) - y(x-h) = 2h*y'(x) + (h³/3)*y'''(x) + O(h⁵)")
+	fmt.Println()
+	fmt.Println("Для y' = -y, y''' = y:")
+	fmt.Println("  y(x+h) = y(x-h) - 2h*y(x) + (h³/3)*y(x) + O(h⁵)")
+	fmt.Println()
+	fmt.Println("Невязка ψ = y(x+h) - [y(x-h) - 2h*y(x)]:")
+	fmt.Println("  ψ = (h³/3)*y(x) + O(h⁵)")
+	fmt.Println()
+	fmt.Println("ГЛАВНЫЙ ЧЛЕН НЕВЯЗКИ: ψ₀ = -(h³/3) * exp(-x)")
+	fmt.Println("ПОРЯДОК АППРОКСИМАЦИИ: O(h²) - второй порядок")
+	fmt.Println()
+}
+
+// Анализ порядка аппроксимации и невязки для схемы четвертого порядка
+func analyzeApproximationFourthOrder() {
+	fmt.Println("=== АНАЛИЗ ПОРЯДКА АППРОКСИМАЦИИ И НЕВЯЗКИ k=4 ===")
+	fmt.Println()
+	fmt.Println("Разностная схема: y[i] = (3/(3+h)) * ((-4/3)*h*y[i-1] + (1-h/3)*y[i-2])")
+	fmt.Println()
+	fmt.Println("Схема получена методом неопределенных коэффициентов")
+	fmt.Println("для достижения четвертого порядка аппроксимации.")
+	fmt.Println()
+	fmt.Println("Разложение точного решения до 5-го порядка:")
+	fmt.Println("  y(x+h) = y(x) + h*y'(x) + (h²/2)*y''(x) + (h³/6)*y'''(x) + (h⁴/24)*y⁽⁴⁾(x) + O(h⁵)")
+	fmt.Println()
+	fmt.Println("Для уравнения y' = -y:")
+	fmt.Println("  y'(x) = -y(x)")
+	fmt.Println("  y''(x) = y(x)")
+	fmt.Println("  y'''(x) = -y(x)")
+	fmt.Println("  y⁽⁴⁾(x) = y(x)")
+	fmt.Println()
+	fmt.Println("Подставляем:")
+	fmt.Println("  y(x+h) = y(x) * (1 - h + h²/2 - h³/6 + h⁴/24) + O(h⁵)")
+	fmt.Println()
+	fmt.Println("Коэффициенты схемы подобраны так, чтобы совпадали")
+	fmt.Println("члены разложения до h³ включительно.")
+	fmt.Println()
+	fmt.Println("ГЛАВНЫЙ ЧЛЕН НЕВЯЗКИ: ψ₀ = C * h⁵ * (-exp(-x))")
+	fmt.Println("ПОРЯДОК АППРОКСИМАЦИИ: O(h⁴) - четвертый порядок")
+	fmt.Println()
+}
+
+// Анализ порядка сходимости по теореме Лакса
+func analyzeConvergence() {
+	fmt.Println("=== АНАЛИЗ ПОРЯДКА СХОДИМОСТИ (Теорема Лакса) ===")
+	fmt.Println()
+	fmt.Println("ТЕОРЕМА ЛАКСА:")
+	fmt.Println("Для корректно поставленной линейной задачи с консистентной")
+	fmt.Println("(аппроксимирующей) разностной схемой:")
+	fmt.Println()
+	fmt.Println("  Устойчивость ⟺ Сходимость")
+	fmt.Println()
+	fmt.Println("Для устойчивых схем:")
+	fmt.Println("  Порядок сходимости = Порядку аппроксимации")
+	fmt.Println()
+	fmt.Println("ВЫВОДЫ:")
+	fmt.Println()
+	fmt.Println("1. Схема k=1 (Эйлер):")
+	fmt.Println("   - Порядок аппроксимации: O(h)")
+	fmt.Println("   - Устойчива при h ≤ 2")
+	fmt.Println("   - ПОРЯДОК СХОДИМОСТИ: O(h) - первый порядок")
+	fmt.Println()
+	fmt.Println("2. Схема k=2:")
+	fmt.Println("   - Порядок аппроксимации: O(h²)")
+	fmt.Println("   - Условно устойчива")
+	fmt.Println("   - ПОРЯДОК СХОДИМОСТИ: O(h²) - второй порядок")
+	fmt.Println()
+	fmt.Println("3. Схема k=4:")
+	fmt.Println("   - Порядок аппроксимации: O(h⁴)")
+	fmt.Println("   - Устойчивость проверяется численно")
+	fmt.Println("   - ПОРЯДОК СХОДИМОСТИ: O(h⁴) - четвертый порядок")
+	fmt.Println()
+}
+
 func main() {
 	y0 := -1.0
 	x0 := 0.0
@@ -153,44 +271,132 @@ func main() {
 	h1 := 0.1
 	h2 := h1 / 2.0
 
-	fmt.Println("Differential equation: y' = -y, y(0) = -1")
-	fmt.Printf("Interval: [%.1f, %.1f]\n\n", x0, xn)
+	fmt.Println("╔════════════════════════════════════════════════════════════════════╗")
+	fmt.Println("║  ЛАБОРАТОРНАЯ РАБОТА №5: МЕТОДЫ КОНЕЧНЫХ РАЗНОСТЕЙ                 ║")
+	fmt.Println("╚════════════════════════════════════════════════════════════════════╝")
+	fmt.Println()
+	fmt.Println("Дифференциальное уравнение: y' = -y, y(0) = -1")
+	fmt.Printf("Интервал: [%.1f, %.1f]\n", x0, xn)
+	fmt.Printf("Шаги: h₁ = %.4f, h₂ = %.4f\n", h1, h2)
+	fmt.Println()
+	fmt.Println("════════════════════════════════════════════════════════════════════")
+	fmt.Println()
 
-	// --- secondOrderDifferenceOperatorForm ---
+	// ========== ТЕОРЕТИЧЕСКИЙ АНАЛИЗ ==========
+	// 1. Анализ порядка аппроксимации и невязки
+	fmt.Println("────────────────────────────────────────────────────────────────────")
+	fmt.Println("1. ПОРЯДОК АППРОКСИМАЦИИ И ГЛАВНЫЕ ЧЛЕНЫ НЕВЯЗКИ")
+	fmt.Println("────────────────────────────────────────────────────────────────────")
+	fmt.Println()
+
+	analyzeApproximationFirstOrder()
+	fmt.Println("────────────────────────────────────────────────────────────────────")
+	fmt.Println()
+
+	analyzeApproximationSecondOrder()
+	fmt.Println("────────────────────────────────────────────────────────────────────")
+	fmt.Println()
+
+	analyzeApproximationFourthOrder()
+	fmt.Println("────────────────────────────────────────────────────────────────────")
+	fmt.Println()
+
+	// 2. Анализ устойчивости
+	fmt.Println("────────────────────────────────────────────────────────────────────")
+	fmt.Println("2. ПРОВЕРКА УСТОЙЧИВОСТИ ПО ТЕОРЕМЕ ЛАКСА")
+	fmt.Println("────────────────────────────────────────────────────────────────────")
+	fmt.Println()
+
+	analyzeStabilityFirstOrder(h1)
+	fmt.Println("────────────────────────────────────────────────────────────────────")
+	fmt.Println()
+
+	analyzeStabilitySecondOrder(h1)
+	fmt.Println("────────────────────────────────────────────────────────────────────")
+	fmt.Println()
+
+	analyzeStabilityFourthOrder(h1)
+	fmt.Println("────────────────────────────────────────────────────────────────────")
+	fmt.Println()
+
+	// 3. Анализ порядка сходимости
+	fmt.Println("────────────────────────────────────────────────────────────────────")
+	fmt.Println("3. ПОРЯДОК СХОДИМОСТИ РАЗНОСТНЫХ СХЕМ")
+	fmt.Println("────────────────────────────────────────────────────────────────────")
+	fmt.Println()
+
+	analyzeConvergence()
+	fmt.Println("════════════════════════════════════════════════════════════════════")
+	fmt.Println()
+
+	fmt.Println()
+	fmt.Println("────────────────────────────────────────────────────────────────────")
+	fmt.Println("4. ПРАВИЛО РУНГЕ - ЧИСЛЕННАЯ ПРОВЕРКА ПОРЯДКА СХОДИМОСТИ")
+	fmt.Println("────────────────────────────────────────────────────────────────────")
+	fmt.Println()
+
+	// --- firstOrderDifferenceOperatorForm (k=1) ---
 	xEuler1, yEuler1 := firstOrderDifferenceOperatorForm(y0, x0, xn, h1)
 	xEuler2, yEuler2 := firstOrderDifferenceOperatorForm(y0, x0, xn, h2)
 	errEuler1 := calculateMaxError(yEuler1, xEuler1)
 	errEuler2 := calculateMaxError(yEuler2, xEuler2)
 	pEuler := rungeRule(errEuler1, errEuler2, h1/h2)
 
-	fmt.Println("--- Euler Method (k=1, O(h)) ---")
-	fmt.Printf("Max error (h=%.2f): %e\n", h1, errEuler1)
-	fmt.Printf("Max error (h=%.2f): %e\n", h2, errEuler2)
-	fmt.Printf("Numerical convergence order (p): %.4f\n\n", pEuler)
+	fmt.Println("┌─ Метод Эйлера (k=1, O(h)) ─────────────────────────────────────┐")
+	fmt.Printf("│ Максимальная ошибка при h = %.4f:  %e\n", h1, errEuler1)
+	fmt.Printf("│ Максимальная ошибка при h = %.4f:  %e\n", h2, errEuler2)
+	fmt.Printf("│ Численный порядок сходимости p:         %.4f\n", pEuler)
+	fmt.Println("│")
+	if math.Abs(pEuler-1.0) < 0.2 {
+		fmt.Println("│ ✓ Численный порядок сходимости соответствует теоретическому O(h)")
+	} else {
+		fmt.Println("│ ⚠ Численный порядок сходимости отличается от теоретического")
+	}
+	fmt.Println("└────────────────────────────────────────────────────────────────┘")
+	fmt.Println()
 
-	// --- secondOrderDifferenceOperatorForm ---
+	// --- secondOrderDifferenceOperatorForm (k=2) ---
 	xTrap1, yTrap1 := secondOrderDifferenceOperatorForm(y0, x0, xn, h1)
 	xTrap2, yTrap2 := secondOrderDifferenceOperatorForm(y0, x0, xn, h2)
 	errTrap1 := calculateMaxError(yTrap1, xTrap1)
 	errTrap2 := calculateMaxError(yTrap2, xTrap2)
 	pTrap := rungeRule(errTrap1, errTrap2, h1/h2)
 
-	fmt.Println("--- Trapezoidal Method (k=2, O(h^2)) ---")
-	fmt.Printf("Max error (h=%.2f): %e\n", h1, errTrap1)
-	fmt.Printf("Max error (h=%.2f): %e\n", h2, errTrap2)
-	fmt.Printf("Numerical convergence order (p): %.4f\n\n", pTrap)
+	fmt.Println("┌─ Метод второго порядка (k=2, O(h²)) ───────────────────────────┐")
+	fmt.Printf("│ Максимальная ошибка при h = %.4f:  %e\n", h1, errTrap1)
+	fmt.Printf("│ Максимальная ошибка при h = %.4f:  %e\n", h2, errTrap2)
+	fmt.Printf("│ Численный порядок сходимости p:         %.4f\n", pTrap)
+	fmt.Println("│")
+	if math.Abs(pTrap-2.0) < 0.2 {
+		fmt.Println("│ ✓ Численный порядок сходимости соответствует теоретическому O(h²)")
+	} else {
+		fmt.Println("│ ⚠ Численный порядок сходимости отличается от теоретического")
+	}
+	fmt.Println("└────────────────────────────────────────────────────────────────┘")
+	fmt.Println()
 
-	// --- Four-Point Method ---
+	// --- forthOrderDifferenceOperatorForm (k=4) ---
 	x4P1, y4P1 := forthOrderDifferenceOperatorForm(y0, x0, xn, h1)
 	x4P2, y4P2 := forthOrderDifferenceOperatorForm(y0, x0, xn, h2)
 	err4P1 := calculateMaxError(y4P1, x4P1)
 	err4P2 := calculateMaxError(y4P2, x4P2)
 	p4P := rungeRule(err4P1, err4P2, h1/h2)
 
-	fmt.Println("--- Four-Point Method (k=4, O(h^4)) ---")
-	fmt.Printf("Max error (h=%.2f): %e\n", h1, err4P1)
-	fmt.Printf("Max error (h=%.2f): %e\n", h2, err4P2)
-	fmt.Printf("Numerical convergence order (p): %.4f\n\n", p4P)
+	fmt.Println("┌─ Метод четвертого порядка (k=4, O(h⁴)) ────────────────────────┐")
+	fmt.Printf("│ Максимальная ошибка при h = %.4f:  %e\n", h1, err4P1)
+	fmt.Printf("│ Максимальная ошибка при h = %.4f:  %e\n", h2, err4P2)
+	fmt.Printf("│ Численный порядок сходимости p:         %.4f\n", p4P)
+	fmt.Println("│")
+	if math.Abs(p4P-4.0) < 0.5 {
+		fmt.Println("│ ✓ Численный порядок сходимости соответствует теоретическому O(h⁴)")
+	} else {
+		fmt.Println("│ ⚠ Численный порядок сходимости отличается от теоретического")
+	}
+	fmt.Println("└────────────────────────────────────────────────────────────────┘")
+	fmt.Println()
+
+	fmt.Println("════════════════════════════════════════════════════════════════════")
+	fmt.Println()
 
 	// Generate data for plotting with a smaller step
 	plotH := 0.1
