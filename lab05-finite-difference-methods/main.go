@@ -43,28 +43,6 @@ func secondOrderDifferenceOperatorForm(y0 float64, x0, xn float64, h float64) ([
 	return x, y
 }
 
-func forthOrderDifferenceOperatorForm(y0 float64, x0, xn float64, h float64) ([]float64, []float64) {
-	n := int((xn-x0)/h) + 1
-	x := make([]float64, n)
-	y := make([]float64, n)
-	x[0], y[0] = x0, y0
-
-	if n > 1 {
-		// Специальная формула для y[1], обеспечивающая O(h⁴)
-		// y[1] = (h² - 6)/(2*h² + 6*h + 6)
-		y[1] = (h*h - 6) / (2*h*h + 6*h + 6)
-		x[1] = x[0] + h
-	}
-
-	// Основная итерационная формула
-	// y[i] = (3/(3 + h)) * ((-4/3)*h*y[i-1] + (1-h/3)*y[i-2])
-	for i := 2; i < n; i++ {
-		y[i] = (3.0 / (3.0 + h)) * ((-4.0/3.0)*h*y[i-1] + (1.0-h/3.0)*y[i-2])
-		x[i] = x[i-1] + h
-	}
-	return x, y
-}
-
 // Calculate max error between numerical and analytical solution
 func calculateMaxError(yNum, xNum []float64) float64 {
 	maxErr := 0.0
@@ -133,17 +111,8 @@ func analyzeStabilitySecondOrder(h float64) {
 }
 
 // Анализ устойчивости схемы четвертого порядка
-func analyzeStabilityFourthOrder(h float64) {
-	fmt.Println("=== АНАЛИЗ УСТОЙЧИВОСТИ СХЕМЫ k=4 ===")
-	fmt.Println("Разностная схема: y[i] = (3/(3+h)) * ((-4/3)*h*y[i-1] + (1-h/3)*y[i-2])")
-	fmt.Println()
-	fmt.Println("Для двухшаговых схем анализ устойчивости сложнее.")
-	fmt.Println("Требуется численная проверка спектрального радиуса.")
-	fmt.Println()
-	fmt.Println("Коэффициенты схемы подобраны для обеспечения O(h⁴),")
-	fmt.Println("устойчивость проверяется численными экспериментами.")
-	fmt.Printf("При h = %.4f схема демонстрирует устойчивое поведение.\n", h)
-	fmt.Println()
+func analyzeStabilityFourthOrder() {
+
 }
 
 // Анализ порядка аппроксимации и невязки для схемы первого порядка
@@ -205,63 +174,6 @@ func analyzeApproximationSecondOrder() {
 
 // Анализ порядка аппроксимации и невязки для схемы четвертого порядка
 func analyzeApproximationFourthOrder() {
-	fmt.Println("=== АНАЛИЗ ПОРЯДКА АППРОКСИМАЦИИ И НЕВЯЗКИ k=4 ===")
-	fmt.Println()
-	fmt.Println("Разностная схема: y[i] = (3/(3+h)) * ((-4/3)*h*y[i-1] + (1-h/3)*y[i-2])")
-	fmt.Println()
-	fmt.Println("Схема получена методом неопределенных коэффициентов")
-	fmt.Println("для достижения четвертого порядка аппроксимации.")
-	fmt.Println()
-	fmt.Println("Разложение точного решения до 5-го порядка:")
-	fmt.Println("  y(x+h) = y(x) + h*y'(x) + (h²/2)*y''(x) + (h³/6)*y'''(x) + (h⁴/24)*y⁽⁴⁾(x) + O(h⁵)")
-	fmt.Println()
-	fmt.Println("Для уравнения y' = -y:")
-	fmt.Println("  y'(x) = -y(x)")
-	fmt.Println("  y''(x) = y(x)")
-	fmt.Println("  y'''(x) = -y(x)")
-	fmt.Println("  y⁽⁴⁾(x) = y(x)")
-	fmt.Println()
-	fmt.Println("Подставляем:")
-	fmt.Println("  y(x+h) = y(x) * (1 - h + h²/2 - h³/6 + h⁴/24) + O(h⁵)")
-	fmt.Println()
-	fmt.Println("Коэффициенты схемы подобраны так, чтобы совпадали")
-	fmt.Println("члены разложения до h³ включительно.")
-	fmt.Println()
-	fmt.Println("ГЛАВНЫЙ ЧЛЕН НЕВЯЗКИ: ψ₀ = C * h⁵ * (-exp(-x))")
-	fmt.Println("ПОРЯДОК АППРОКСИМАЦИИ: O(h⁴) - четвертый порядок")
-	fmt.Println()
-}
-
-// Анализ порядка сходимости по теореме Лакса
-func analyzeConvergence() {
-	fmt.Println("=== АНАЛИЗ ПОРЯДКА СХОДИМОСТИ (Теорема Лакса) ===")
-	fmt.Println()
-	fmt.Println("ТЕОРЕМА ЛАКСА:")
-	fmt.Println("Для корректно поставленной линейной задачи с консистентной")
-	fmt.Println("(аппроксимирующей) разностной схемой:")
-	fmt.Println()
-	fmt.Println("  Устойчивость ⟺ Сходимость")
-	fmt.Println()
-	fmt.Println("Для устойчивых схем:")
-	fmt.Println("  Порядок сходимости = Порядку аппроксимации")
-	fmt.Println()
-	fmt.Println("ВЫВОДЫ:")
-	fmt.Println()
-	fmt.Println("1. Схема k=1 (Эйлер):")
-	fmt.Println("   - Порядок аппроксимации: O(h)")
-	fmt.Println("   - Устойчива при h ≤ 2")
-	fmt.Println("   - ПОРЯДОК СХОДИМОСТИ: O(h) - первый порядок")
-	fmt.Println()
-	fmt.Println("2. Схема k=2:")
-	fmt.Println("   - Порядок аппроксимации: O(h²)")
-	fmt.Println("   - Условно устойчива")
-	fmt.Println("   - ПОРЯДОК СХОДИМОСТИ: O(h²) - второй порядок")
-	fmt.Println()
-	fmt.Println("3. Схема k=4:")
-	fmt.Println("   - Порядок аппроксимации: O(h⁴)")
-	fmt.Println("   - Устойчивость проверяется численно")
-	fmt.Println("   - ПОРЯДОК СХОДИМОСТИ: O(h⁴) - четвертый порядок")
-	fmt.Println()
 }
 
 func main() {
@@ -315,7 +227,7 @@ func main() {
 	fmt.Println("────────────────────────────────────────────────────────────────────")
 	fmt.Println()
 
-	analyzeStabilityFourthOrder(h1)
+	analyzeStabilityFourthOrder()
 	fmt.Println("────────────────────────────────────────────────────────────────────")
 	fmt.Println()
 
@@ -325,7 +237,6 @@ func main() {
 	fmt.Println("────────────────────────────────────────────────────────────────────")
 	fmt.Println()
 
-	analyzeConvergence()
 	fmt.Println("════════════════════════════════════════════════════════════════════")
 	fmt.Println()
 
@@ -376,24 +287,6 @@ func main() {
 	fmt.Println()
 
 	// --- forthOrderDifferenceOperatorForm (k=4) ---
-	x4P1, y4P1 := forthOrderDifferenceOperatorForm(y0, x0, xn, h1)
-	x4P2, y4P2 := forthOrderDifferenceOperatorForm(y0, x0, xn, h2)
-	err4P1 := calculateMaxError(y4P1, x4P1)
-	err4P2 := calculateMaxError(y4P2, x4P2)
-	p4P := rungeRule(err4P1, err4P2, h1/h2)
-
-	fmt.Println("┌─ Метод четвертого порядка (k=4, O(h⁴)) ────────────────────────┐")
-	fmt.Printf("│ Максимальная ошибка при h = %.4f:  %e\n", h1, err4P1)
-	fmt.Printf("│ Максимальная ошибка при h = %.4f:  %e\n", h2, err4P2)
-	fmt.Printf("│ Численный порядок сходимости p:         %.4f\n", p4P)
-	fmt.Println("│")
-	if math.Abs(p4P-4.0) < 0.5 {
-		fmt.Println("│ ✓ Численный порядок сходимости соответствует теоретическому O(h⁴)")
-	} else {
-		fmt.Println("│ ⚠ Численный порядок сходимости отличается от теоретического")
-	}
-	fmt.Println("└────────────────────────────────────────────────────────────────┘")
-	fmt.Println()
 
 	fmt.Println("════════════════════════════════════════════════════════════════════")
 	fmt.Println()
@@ -401,14 +294,13 @@ func main() {
 	// Generate data for plotting with a smaller step
 	plotH := 0.1
 	xPlot, yEulerPlot := firstOrderDifferenceOperatorForm(y0, x0, xn, plotH)
-	_, yTrapPlot := secondOrderDifferenceOperatorForm(y0, x0, xn, plotH)
-	_, y4PPlot := forthOrderDifferenceOperatorForm(y0, x0, xn, plotH)
+	_, ySecondPlot := secondOrderDifferenceOperatorForm(y0, x0, xn, plotH)
 	yAnalyticalPlot := make([]float64, len(xPlot))
 	for i, x := range xPlot {
 		yAnalyticalPlot[i] = analyticalSolution(x)
 	}
 
-	err := generatePlot(xPlot, yAnalyticalPlot, yEulerPlot, yTrapPlot, y4PPlot)
+	err := generatePlot(xPlot, yAnalyticalPlot, yEulerPlot, ySecondPlot, ySecondPlot)
 	if err != nil {
 		fmt.Println("Error generating plot:", err)
 	} else {
