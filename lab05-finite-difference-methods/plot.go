@@ -49,14 +49,14 @@ func generatePlot(x, yAnalytical, yEuler, yTrap, yRK4 []float64) error {
             x: %s,
             y: %s,
             mode: 'markers',
-            name: 'Trapezoidal (k=2)'
+            name: 'k=2'
         };
 
         var trace4 = {
             x: %s,
             y: %s,
             mode: 'markers',
-            name: 'RK4 (k=4)'
+            name: 'k=4'
         };
 
         var data = [trace1, trace2, trace3, trace4];
