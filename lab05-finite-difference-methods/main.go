@@ -128,29 +128,6 @@ func analyzeStabilitySecondOrder(h float64) {
 	fmt.Println()
 }
 
-// Анализ устойчивости схемы четвертого порядка
-func analyzeStabilityFourthOrder(h float64) {
-	fmt.Println("=== АНАЛИЗ УСТОЙЧИВОСТИ СХЕМЫ k=4 ===")
-	fmt.Println("Разностная схема: y[i] = (3/(3+h)) * ((-4/3)*h*y[i-1] + (1-h/3)*y[i-2])")
-	fmt.Println()
-	A := (3.0 / (3.0 + h)) * (-4.0 / 3.0 * h)
-	B := (3.0 / (3.0 + h)) * (1.0 - h/3.0)
-	fmt.Printf("Коэффициенты: A = %.6f, B = %.6f\n", A, B)
-	fmt.Println("Характеристическое уравнение: λ² - A λ - B = 0")
-	discriminant := A*A + 4*B
-	lambda1 := (A + math.Sqrt(discriminant)) / 2
-	lambda2 := (A - math.Sqrt(discriminant)) / 2
-	fmt.Printf("Корни: λ₁ = %.6f, |λ₁| = %.6f\n", lambda1, math.Abs(lambda1))
-	fmt.Printf("       λ₂ = %.6f, |λ₂| = %.6f\n", lambda2, math.Abs(lambda2))
-	stable := math.Abs(lambda1) <= 1.0001 && math.Abs(lambda2) <= 1.0001
-	if stable {
-		fmt.Println("✓ Схема УСТОЙЧИВА")
-	} else {
-		fmt.Println("✗ Схема НЕУСТОЙЧИВА")
-	}
-	fmt.Println()
-}
-
 // Анализ порядка аппроксимации и невязки для схемы первого порядка
 func analyzeApproximationFirstOrder() {
 	fmt.Println("=== АНАЛИЗ ПОРЯДКА АППРОКСИМАЦИИ И НЕВЯЗКИ k=1 ===")
@@ -252,10 +229,6 @@ func main() {
 	fmt.Println()
 
 	analyzeStabilitySecondOrder(h1)
-	fmt.Println("────────────────────────────────────────────────────────────────────")
-	fmt.Println()
-
-	analyzeStabilityFourthOrder(h1)
 	fmt.Println("────────────────────────────────────────────────────────────────────")
 	fmt.Println()
 
