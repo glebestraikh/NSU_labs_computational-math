@@ -50,8 +50,8 @@ func forthOrderDifferenceOperatorForm(y0 float64, x0, xn float64, h float64) ([]
 	x[0], y[0] = x0, y0
 
 	if n > 1 {
-		y[1] = y[0] * (12.0 - 6.0*h + h*h) / (12.0 + 6.0*h + h*h)
 		x[1] = x[0] + h
+		y[1] = analyticalSolution(x[1])
 	}
 
 	for i := 2; i < n; i++ {
